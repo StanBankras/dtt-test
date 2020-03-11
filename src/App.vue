@@ -1,7 +1,11 @@
 <template>
   <div id="app">
     <app-layout>
-      <router-view/>
+      <main class="content">
+        <div class="container">
+          <router-view/>
+        </div>
+      </main>
     </app-layout>
   </div>
 </template>
@@ -19,6 +23,8 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
+@import '@/assets/css/main.scss';
+
 *, *::before, *::after {
   padding:0;
   margin: 0;
@@ -34,5 +40,13 @@ h1, h2, h3, h4, h5, h6 {
   max-width: 1250px;
   margin: 0 auto;
   padding: 0 1rem;
+}
+
+.content {
+  background-color: $grey-dark;
+  > .container {
+    background-color: $grey-light;
+    padding: 3rem 2rem;
+  }
 }
 </style>

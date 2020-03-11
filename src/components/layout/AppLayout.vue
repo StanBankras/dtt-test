@@ -9,8 +9,8 @@
 <script lang="ts">
 import Vue from 'vue';
 
-import PageHeader from '@/components/PageHeader.vue';
-import PageFooter from '@/components/PageFooter.vue';
+import PageHeader from '@/components/layout/header/PageHeader.vue';
+import PageFooter from '@/components/layout/footer/PageFooter.vue';
 
 export default Vue.extend({
   components: {
