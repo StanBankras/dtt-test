@@ -19,4 +19,20 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
+*, *::before, *::after {
+  padding:0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'Open Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Changa One', cursive;
+}
+
+.container {
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
 </style>
