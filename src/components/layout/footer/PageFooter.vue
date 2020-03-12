@@ -6,7 +6,7 @@
       </footer-section>
       <footer-section title="Sitemap">
         <ul>
-          <li v-for="(link, index) in links" :key="index">
+          <li class="footer-link" v-for="(link, index) in links" :key="index">
             <router-link :to="link.path">{{ link.name }}</router-link>
           </li>
         </ul>
@@ -14,15 +14,14 @@
     </footer>
   </div>
 </template>
-
 <script lang="ts">
-import Vue from 'vue';
+import Vue from 'vue'
 import FooterSection from '@/components/layout/footer/FooterSection';
 
 export default Vue.extend({
   data() {
     return {
-      links: []
+      links: [] as object[]
     }
   },
   components: {
@@ -31,12 +30,12 @@ export default Vue.extend({
   created() {
     this.$router.options.routes.forEach(route => {
       this.links.push({
-        name: route.name, 
+        name: route.name,
         path: route.path
       });
     });
   }
-});
+})
 </script>
 
 <style lang="scss" scoped>
@@ -50,6 +49,13 @@ export default Vue.extend({
     padding: 0 2rem;
     display: flex;
     flex-wrap: wrap;
+    ul {
+      list-style: none;
+    }
   }
+}
+
+.footer-link a {
+  color: lighten($secondary-color, 50%);
 }
 </style>

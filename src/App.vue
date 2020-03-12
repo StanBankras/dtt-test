@@ -37,7 +37,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .container {
-  max-width: 1250px;
+  max-width: 1150px;
   margin: 0 auto;
   padding: 0 1rem;
 }
