@@ -16,7 +16,7 @@
 </template>
 <script lang="ts">
 import Vue from 'vue'
-import FooterSection from '@/components/layout/footer/FooterSection';
+import FooterSection from '@/components/layout/footer/FooterSection.vue';
 
 export default Vue.extend({
   data() {

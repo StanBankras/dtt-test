@@ -57,7 +57,7 @@
         <title-element size="h2">Similar games</title-element>
         <section v-for="similarGame in similarGames" :key="similarGame.id">
           <img :src="similarGame.background_image" alt="">
-          {{ similarGame.name }}
+          <a @click="selectOtherGame(similarGame.id)" :to="'../detail/' + similarGame.id">{{ similarGame.name }}</a>
         </section>
       </div>
       <div id="sidebar" v-else>
@@ -81,33 +81,49 @@ export default Vue.extend({
     }
   },
   methods: {
-    getGameSeries() {
-      const pageId = this.$route.params.id;
-      this.$axios.get('https://api.rawg.io/api/games/' + pageId + '/game-series')
+    selectOtherGame(gameId: number) {
+      // Get game details by pageId
+      this.similarGames = [];
+      this.getGameSeries(gameId);
+      this.$router.push('/detail/' + gameId);
+
+      this.$axios.get('https://api.rawg.io/api/games/' + gameId)
       .then((response) => {
-        const similarGamesArray = response.data.results;
-        for (let i=0;i<Math.min(3, similarGamesArray.length);i++) {
-          this.similarGames.push(similarGamesArray[i]);
-        }
-        this.getSimilarGames();
-        console.log(this.similarGames);
+        this.game = response.data;
       })
       .catch((err) => {
         console.error(err);
       })
     },
-    getSimilarGames() {
-      const pageId = this.$route.params.id;
+    getGameSeries(gameId: number) {
+      const pageId = gameId ? gameId : this.$route.params.id;
+      this.similarGames = [];
+
+      this.$axios.get('https://api.rawg.io/api/games/' + pageId + '/game-series')
+      .then((response) => {
+        const similarGamesArray: object[] = response.data.results.filter(item => item.id != pageId);
+      
+        for (let i=0;i<Math.min(1, similarGamesArray.length);i++) {
+          this.similarGames.push(similarGamesArray[i]);
+        }
+        this.getSimilarGames(gameId);
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+    },
+    getSimilarGames(gameId: number) {
+      const pageId = gameId ? gameId : this.$route.params.id;
 
       if (this.similarGames.length < 3) {
         const spaceLeft = 3-this.similarGames.length;
+
         this.$axios.get('https://api.rawg.io/api/games/' + pageId + '/suggested')
         .then((response) => {
           const visuallySimilarGames = response.data.results;
           for (let i=0;i<Math.min(spaceLeft, visuallySimilarGames.length);i++) {
             this.similarGames.push(visuallySimilarGames[i]);
           }
-          console.log(this.similarGames);
         })
         .catch((err) => {
           console.error(err);
@@ -117,12 +133,11 @@ export default Vue.extend({
   },
   created() {
     // Get game details by pageId
-    this.getGameSeries();
     const pageId = this.$route.params.id;
+    this.getGameSeries(parseInt(pageId));
     this.$axios.get('https://api.rawg.io/api/games/' + pageId)
     .then((response) => {
       this.game = response.data;
-      console.log(this.game);
     })
     .catch((err) => {
       console.error(err);

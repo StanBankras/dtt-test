@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex'
 import App from './App.vue';
 import router from './router';
-import Axios from 'axios';
+import axios, {AxiosStatic} from 'axios';
 
 // Global components
 import Title from '@/components/Title.vue'
@@ -17,9 +17,13 @@ const store = new Vuex.Store({
 })
 
 Vue.config.productionTip = false;
-Vue.prototype.$axios = Axios;
+Vue.prototype.$axios = axios;
 
-
+declare module 'vue/types/vue' {
+  interface Vue {
+      $axios: AxiosStatic;
+  }
+}
 
 new Vue({
   router,

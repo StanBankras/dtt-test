@@ -30,28 +30,33 @@ export default Vue.extend({
     }
   },
   created() {
-    // Get the first 10 games from the API
-    let gameArray;
-    this.$axios.get('https://api.rawg.io/api/games')
-    .then((response) => { 
-      gameArray = response.data.results.splice(0,10);
-      const promises = [];
+    if (this.$store.state.loadedGames.length > 0) {
+      this.games = this.$store.state.loadedGames;
+    } else {
+      // Get the first 10 games from the API
+      let gameArray;
+      this.$axios.get('https://api.rawg.io/api/games')
+      .then((response) => { 
+        gameArray = response.data.results.splice(0,10);
+        const promises: Promise<void>[] = [];
 
-      for (let i = 0; i < gameArray.length; i++) {
-        promises.push(this.$axios.get('https://api.rawg.io/api/games/' + gameArray[i].id)
-          .then((response) => {
-            gameArray[i].description = response.data.description_raw;
-          })
-        )
-      }
-      return Promise.all(promises);
-    })
-    .then(() => {
-      this.games = gameArray;
-    })
-    .catch((err) => {
-      console.error(err);
-    })
+        for (let i = 0; i < gameArray.length; i++) {
+          promises.push(this.$axios.get('https://api.rawg.io/api/games/' + gameArray[i].id)
+            .then((response) => {
+              gameArray[i].description = response.data.description_raw;
+            })
+          )
+        }
+        return Promise.all(promises);
+      })
+      .then(() => {
+        this.games = gameArray;
+        this.$store.state.loadedGames = gameArray;
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+    }
   }
 })
 </script>
