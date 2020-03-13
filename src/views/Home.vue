@@ -2,14 +2,14 @@
   <div class="home">
     <title-element size="h1">Find your favorite games</title-element>
     <section id="game-list" v-if="games[0].name != ''">
-      <article class="list-item" v-for="game in games" :key="game.id">
+      <article class="list-item" v-for="game in games.slice(0, 10)" :key="game.id">
         <div class="img-wrapper">
           <img :src="game.background_image" alt="">
         </div>
         <h2><router-link :to="'/detail/' + game.id">{{ game.name }}</router-link></h2>
-        <p>{{ game.description }}</p>
+        <p>{{ game.description_raw ? game.description_raw : game.description }}</p>
         <div class="genres">
-          <span class="tag" v-for="(genre, index) in game.genres" :key="index">{{ genre.name }}</span>
+          <tag color="grey" v-for="(genre, index) in game.genres" :key="index">{{ genre.name }}</tag>
         </div>
       </article>
     </section>
@@ -103,14 +103,6 @@ export default Vue.extend({
       margin-top: 1rem;
       display: flex;
       flex-wrap: wrap;
-      .tag {
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
-        font-size: 13px;
-        padding: 0.3rem 0.7rem;
-        background-color: grey;
-        border-radius: 25px;
-      }
     }
   }
 }

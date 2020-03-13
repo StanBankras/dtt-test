@@ -1,70 +1,73 @@
 <template>
-  <div id="detail-item">
-    <div class="genres">
-      <span class="tag" v-for="(genre, index) in game.genres" :key="index">{{ genre.name }}</span>
+  <div>
+    <p @click="randomGame()">Random game2!</p>
+    <div v-if="this.$route.path.split('/')[2] === undefined && game == {}">
+      <p @click="randomGame()">Random game!</p>
     </div>
-
-    <title-element size="h1">{{ game.name }}</title-element>
-
-    <div class="wrapper">
-      <article id="details">
-        <div class="img-wrapper" v-if="game.background_image">
-          <img :src="game.background_image" alt="">
-          <div class="stars">
-            <img src="@/assets/img/icons/star.svg" alt="">
-            <img src="@/assets/img/icons/star.svg" alt="">
-            <img src="@/assets/img/icons/star.svg" alt="">
-            <img src="@/assets/img/icons/star.svg" alt="">
-          </div>
-        </div>
-
-        <p class="meta">Meta <span>Released on {{ game.released }}</span> <span>Page last updated on {{ game.updated }}</span></p>
-
-        <div class="description">
-          <title-element size="h2">Description</title-element>
-          <p>
-            {{ game.description_raw }}
-          </p>
-        </div>
-
-        <div class="meta-wrapper">
-          <section>
-            <title-element size="h2">Platforms</title-element>
-            <ul>
-              <li v-for="(platform, index) in game.platforms" :key="index">{{ platform.platform.name }}</li>
-            </ul>
-          </section>
-          <section>
-            <title-element size="h2">Developed by</title-element>
-            <span v-for="developer in game.developers" :key="developer.id">{{ developer.name == game.developers[game.developers.length-1].name ? developer.name : developer.name + ',' }} </span>
-          </section>
-          <section>
-            <title-element size="h2">Published by</title-element>
-            <b v-for="publisher in game.publishers" :key="publisher.id">{{ publisher.name == game.publishers[game.publishers.length-1].name ? publisher.name : publisher.name + ',' }} </b>
-          </section>
-        </div>
-
-        <div class="tags">
-          <title-element size="h2">Tags</title-element>
-          <div class="wrap">
-            <span class="tag" v-for="(tag, index) in game.tags" :key="index">{{ tag.name }}</span>
-          </div>
-        </div>
-        <a href="#" id="site-link">Go to the official website</a>
-      </article>
-
-      <div id="sidebar" v-if="similarGames != []">
-        <title-element size="h2">Similar games</title-element>
-        <section v-for="similarGame in similarGames" :key="similarGame.id">
-          <img :src="similarGame.background_image" alt="">
-          <a @click="selectOtherGame(similarGame.id)" :to="'../detail/' + similarGame.id">{{ similarGame.name }}</a>
-        </section>
+    <div id="detail-item" v-else>
+      <div class="genres">
+        <tag color="blue" v-for="(genre, index) in game.genres" :key="index">{{ genre.name }}</tag>
       </div>
-      <div id="sidebar" v-else>
-        <title-element size="h2">Similar games</title-element>
-        <p>No similar games found...</p>
-      </div>
-    </div>    
+
+      <title-element size="h1">{{ game.name }}</title-element>
+
+      <div class="wrapper">
+        <article id="details">
+          <div class="img-wrapper" v-if="game.background_image">
+            <img :src="game.background_image" alt="">
+            <div class="stars">
+              <img src="@/assets/img/icons/star.svg" alt="" v-for="index in getStars" :key="index">
+            </div>
+          </div>
+
+          <p class="meta">Meta <span>Released on {{ game.released }}</span> <span>Page last updated on {{ game.updated ? game.updated.replace('T', ' at ') : 'unknown' }}</span></p>
+
+          <div class="description">
+            <title-element size="h2">Description</title-element>
+            <p>
+              {{ game.description_raw ? game.description_raw : game.description ? game.decription : 'Not specified' }}
+            </p>
+          </div>
+
+          <div class="meta-wrapper">
+            <section>
+              <title-element size="h2">Platforms</title-element>
+              <ul>
+                <li v-for="(platform, index) in game.platforms" :key="index">{{ platform.platform.name }}</li>
+              </ul>
+            </section>
+            <section>
+              <title-element size="h2">Developed by</title-element>
+              <span v-for="developer in game.developers" :key="developer.id">{{ developer.name == game.developers[game.developers.length-1].name ? developer.name : developer.name + ',' }} </span>
+            </section>
+            <section>
+              <title-element size="h2">Published by</title-element>
+              <b v-for="publisher in game.publishers" :key="publisher.id">{{ publisher.name == game.publishers[game.publishers.length-1].name ? publisher.name : publisher.name + ',' }} </b>
+            </section>
+          </div>
+
+          <div class="tags">
+            <title-element size="h2">Tags</title-element>
+            <div class="wrap">
+              <tag color="grey" v-for="(tag, index) in game.tags" :key="index">{{ tag.name }}</tag>
+            </div>
+          </div>
+          <a :href="game.website" id="site-link">Go to the official website</a>
+        </article>
+
+        <div id="sidebar" v-if="similarGames != []">
+          <title-element size="h2">Similar games</title-element>
+          <section v-for="similarGame in similarGames" :key="similarGame.id">
+            <img :src="similarGame.background_image" alt="">
+            <a @click="selectOtherGame(similarGame.id)" :to="'../detail/' + similarGame.id">{{ similarGame.name }}</a>
+          </section>
+        </div>
+        <div id="sidebar" v-else>
+          <title-element size="h2">Similar games</title-element>
+          <p>No similar games found...</p>
+        </div>
+      </div>    
+    </div>
   </div>
 </template>
 
@@ -73,32 +76,51 @@ import Vue from 'vue'
 export default Vue.extend({
   data() {
     return {
-      game: {
-        rating: 0,
-        stars: []
-      },
+      game: {} as object,
       similarGames: [] as object[]
-    }
+    } 
   },
   methods: {
+    randomGame() {
+      // Get game details by pageId
+        this.$axios.get('https://api.rawg.io/api/games')
+        .then((response) => {
+          const pageId = Math.floor(Math.random() * Math.floor(response.data.count));
+          this.getGameSeries(pageId);
+          this.$axios.get('https://api.rawg.io/api/games/' + pageId)
+          .then((response) => {
+            this.game = response.data;
+          })
+          .catch(() => {
+            console.error('Game not found, looking for a new random game');
+            this.randomGame();
+          })
+        })
+    },
     selectOtherGame(gameId: number) {
       // Get game details by pageId
       this.similarGames = [];
       this.getGameSeries(gameId);
       this.$router.push('/detail/' + gameId);
 
-      this.$axios.get('https://api.rawg.io/api/games/' + gameId)
-      .then((response) => {
-        this.game = response.data;
-      })
-      .catch((err) => {
-        console.error(err);
-      })
+      if (this.$store.state.loadedGames.find(x => x.id == gameId)) {
+        // Load game from store
+        this.game = this.$store.state.loadedGames.find(x => x.id == gameId);
+      } else {
+        // Else load game from API & add to store
+        this.$axios.get('https://api.rawg.io/api/games/' + gameId)
+        .then((response) => {
+          this.game = response.data;
+          this.$store.state.loadedGames.push(response.data);
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+      }
     },
     getGameSeries(gameId: number) {
       const pageId = gameId ? gameId : this.$route.params.id;
       this.similarGames = [];
-
       this.$axios.get('https://api.rawg.io/api/games/' + pageId + '/game-series')
       .then((response) => {
         const similarGamesArray: object[] = response.data.results.filter(item => item.id != pageId);
@@ -113,35 +135,57 @@ export default Vue.extend({
       })
     },
     getSimilarGames(gameId: number) {
-      const pageId = gameId ? gameId : this.$route.params.id;
+      const spaceLeft = 3-this.similarGames.length;
 
-      if (this.similarGames.length < 3) {
-        const spaceLeft = 3-this.similarGames.length;
-
-        this.$axios.get('https://api.rawg.io/api/games/' + pageId + '/suggested')
-        .then((response) => {
-          const visuallySimilarGames = response.data.results;
-          for (let i=0;i<Math.min(spaceLeft, visuallySimilarGames.length);i++) {
-            this.similarGames.push(visuallySimilarGames[i]);
+      this.$axios.get('https://api.rawg.io/api/games/' + gameId + '/suggested')
+      .then((response) => {
+        // If the suggested games contain the game that's also already in the series, remove it.
+        response.data.results.forEach(item => {
+          if (this.similarGames.find((x): boolean => x.id === item.id)) {
+            response.data.results.splice(item);
           }
         })
-        .catch((err) => {
-          console.error(err);
-        })
-      }
+        // Push the
+        for (let i=0;i<Math.min(spaceLeft, response.data.results.length);i++) {
+          this.similarGames.push(response.data.results[i]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+    }
+  },
+  computed: {
+    getStars() {
+      return Math.round(this.game.rating);
     }
   },
   created() {
     // Get game details by pageId
-    const pageId = this.$route.params.id;
-    this.getGameSeries(parseInt(pageId));
-    this.$axios.get('https://api.rawg.io/api/games/' + pageId)
-    .then((response) => {
-      this.game = response.data;
-    })
-    .catch((err) => {
-      console.error(err);
-    })
+    if (this.$route.path.split('/')[1] === 'random') {
+      this.$axios.get('https://api.rawg.io/api/games')
+      .then((response) => {
+        const pageId = Math.floor(Math.random() * Math.floor(response.data.count));
+        this.getGameSeries(pageId);
+        this.$axios.get('https://api.rawg.io/api/games/' + pageId)
+        .then((response) => {
+          this.game = response.data;
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+      })
+    } else {
+      const pageId = this.$route.params.id;
+      this.getGameSeries(parseInt(pageId));
+      this.$axios.get('https://api.rawg.io/api/games/' + pageId)
+      .then((response) => {
+        this.game = response.data;
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+    }
   }
 })
 </script>
@@ -152,6 +196,11 @@ export default Vue.extend({
     display: grid;
     grid-template-columns: 1fr 200px;
     grid-gap: 2rem;
+  }
+  .genres {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
   }
 }
 
@@ -174,6 +223,14 @@ export default Vue.extend({
       }
     }
   }
+  p.meta {
+    font-weight: bold;
+    span {
+      font-weight: normal;
+      margin-left: 1rem;
+      font-size: 14px;
+    }
+  }
   .description {
     margin-top: 2rem;
     p {
@@ -184,6 +241,10 @@ export default Vue.extend({
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     margin-top: 3rem;
+    ul {
+      padding-left: 20px;
+      list-style-type:square;
+    }
   }
   .tags {
     margin-top: 2rem;
@@ -201,11 +262,37 @@ export default Vue.extend({
       }
     }
   }
+  #site-link {
+    padding: 1rem 1.5rem;
+    background-color: #0099FF;
+    color: white;
+    font-weight: bold;
+    font-family: 'Changa One', cursive;
+    font-size: 20px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 2rem;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    transition: .2s;
+    &:hover {
+      background-color: darken(#0099FF, 10%);
+      box-shadow: 0px 0px 0px rbga(0,0,0,0);
+    }
+  }
 }
 
 #sidebar {
+  section {
+    margin-bottom: 1rem;
+  }
   img {
     width: 100%;
+  }
+  a {
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 </style>

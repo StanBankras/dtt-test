@@ -15,6 +15,16 @@ const routes = [
     path: '/detail/:id',
     name: 'Detail',
     component: Detail
+  },
+  {
+    path: '/random/:id',
+    name: 'Random',
+    component: Detail
+  },
+  {
+    path: '/random',
+    name: 'Random',
+    component: Detail
   }
 ]
 
