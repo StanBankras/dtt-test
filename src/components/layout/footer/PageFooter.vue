@@ -29,6 +29,7 @@ export default Vue.extend({
   },
   created() {
     this.$router.options.routes.forEach(route => {
+      if (route.include)
       this.links.push({
         name: route.name,
         path: route.path
