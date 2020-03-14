@@ -1,10 +1,9 @@
 <template>
   <div>
-    <p @click="randomGame()">Random game2!</p>
-    <div v-if="this.$route.path.split('/')[2] === undefined && game == {}">
-      <p @click="randomGame()">Random game!</p>
+    <div v-if="this.$route.path.split('/')[1] === 'random'">
+      <a id="random-game" @click="randomGame()">Give me a new random game!</a>
     </div>
-    <div id="detail-item" v-else>
+    <div id="detail-item">
       <div class="genres">
         <tag color="blue" v-for="(genre, index) in game.genres" :key="index">{{ genre.name }}</tag>
       </div>
@@ -262,23 +261,34 @@ export default Vue.extend({
       }
     }
   }
-  #site-link {
-    padding: 1rem 1.5rem;
-    background-color: #0099FF;
-    color: white;
-    font-weight: bold;
-    font-family: 'Changa One', cursive;
-    font-size: 20px;
-    text-decoration: none;
-    display: inline-block;
-    margin-top: 2rem;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-    transition: .2s;
-    &:hover {
-      background-color: darken(#0099FF, 10%);
-      box-shadow: 0px 0px 0px rbga(0,0,0,0);
-    }
+}
+
+#site-link, #random-game {
+  padding: 1rem 1.5rem;
+  background-color: #0099FF;
+  color: white;
+  font-weight: bold;
+  font-family: 'Changa One', cursive;
+  font-size: 20px;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 2rem;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  transition: .2s;
+  font-weight: 400;
+  cursor: pointer;
+  &:hover {
+    background-color: darken(#0099FF, 10%);
+    box-shadow: 0px 0px 0px rbga(0,0,0,0);
   }
+  &:active {
+    transform: scale(1.1);
+  }
+}
+
+#random-game {
+  margin: 0;
+  margin-bottom: 2rem;
 }
 
 #sidebar {
