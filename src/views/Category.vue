@@ -129,6 +129,9 @@ export default Vue.extend({
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 2rem;
+  position: sticky;
+  top: 83px;
+  z-index: 1000;
   .category {
     padding: 0.5rem 1.6rem;
     border-radius: 25px;

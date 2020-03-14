@@ -22,6 +22,9 @@
 #header {
   background-color: $accent-color;
   padding: 1.5rem 0 0.5rem 0;
+  position: sticky;
+  z-index: 1000;
+  top: 0;
 }
 ul {
   display: flex;
