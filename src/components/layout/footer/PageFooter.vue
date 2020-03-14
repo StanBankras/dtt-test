@@ -17,6 +17,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import FooterSection from '@/components/layout/footer/FooterSection.vue';
+import { routes } from '../../../router/index';
 
 export default Vue.extend({
   data() {
@@ -28,7 +29,7 @@ export default Vue.extend({
     FooterSection
   },
   created() {
-    this.$router.options.routes.forEach(route => {
+    routes.forEach(route => {
       if (route.include)
       this.links.push({
         name: route.name,

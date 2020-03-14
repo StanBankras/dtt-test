@@ -6,7 +6,7 @@ import Category from '../views/Category.vue'
 
 Vue.use(VueRouter)
 
-const routes = [
+export const routes = [
   {
     path: '/',
     name: 'Home',

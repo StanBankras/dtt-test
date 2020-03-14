@@ -5,12 +5,12 @@ import router from './router';
 import axios, {AxiosStatic} from 'axios';
 
 // Global components
-import Title from '@/components/Title.vue'
-import Tag from '@/components/Tag.vue'
-Vue.component('title-element', Title)
-Vue.component('tag', Tag)
+import Title from '@/components/Title.vue';
+import Tag from '@/components/Tag.vue';
+Vue.component('title-element', Title);
+Vue.component('tag', Tag);
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
