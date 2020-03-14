@@ -169,19 +169,7 @@ export default Vue.extend({
   },
   created() {
     if (this.$route.path.split('/')[1] === 'random') {
-      // Path is random, so obtain a random game
-      this.$axios.get('https://api.rawg.io/api/games')
-      .then((response) => {
-        const pageId = Math.floor(Math.random() * Math.floor(response.data.count));
-        this.getGameSeries(pageId);
-        this.$axios.get('https://api.rawg.io/api/games/' + pageId)
-        .then((response) => {
-          this.game = response.data;
-        })
-        .catch(() => {
-          this.randomGame();
-        })
-      })
+      this.randomGame();
     } else {
       // Path is of /detail, so get game by id
       const pageId = this.$route.params.id;
