@@ -72,11 +72,12 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { Game } from '../models/Game';
 export default Vue.extend({
   data() {
     return {
-      game: {} as object,
-      similarGames: [] as object[]
+      game: {} as Game,
+      similarGames: [] as Game[]
     } 
   },
   methods: {
@@ -122,7 +123,7 @@ export default Vue.extend({
       this.similarGames = [];
       this.$axios.get('https://api.rawg.io/api/games/' + pageId + '/game-series')
       .then((response) => {
-        const similarGamesArray: object[] = response.data.results.filter(item => item.id != pageId);
+        const similarGamesArray: Game[] = response.data.results.filter(item => item.id != pageId);
       
         for (let i=0;i<Math.min(1, similarGamesArray.length);i++) {
           this.similarGames.push(similarGamesArray[i]);
@@ -140,7 +141,7 @@ export default Vue.extend({
       .then((response) => {
         // If the suggested games contain the game that's also already in the series, remove it.
         response.data.results.forEach(item => {
-          if (this.similarGames.find((x): boolean => x.id === item.id)) {
+          if (this.similarGames.find((x) => x.id === item.id)) {
             response.data.results.splice(item);
           }
         })
@@ -155,7 +156,7 @@ export default Vue.extend({
     }
   },
   computed: {
-    getStars() {
+    getStars(): number {
       return Math.round(this.game.rating);
     }
   },

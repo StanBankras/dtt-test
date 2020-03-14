@@ -3,7 +3,7 @@
     <app-layout>
       <main class="content">
         <div class="container">
-          <router-view/>
+          <router-view :key="$route.fullPath" />
         </div>
       </main>
     </app-layout>
@@ -44,6 +44,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .content {
   background-color: $grey-dark;
+  min-height: calc(100vh - 348px);
   > .container {
     background-color: $grey-light;
     padding: 3rem 2rem;

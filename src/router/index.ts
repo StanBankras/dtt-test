@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Detail from '../views/Detail.vue'
+import Category from '../views/Category.vue'
 
 Vue.use(VueRouter)
 
@@ -15,7 +16,7 @@ const routes = [
   {
     path: '/detail/:id',
     name: 'Detail',
-    include: true,
+    include: false,
     component: Detail
   },
   {
@@ -29,6 +30,12 @@ const routes = [
     name: 'Random',
     include: true,
     component: Detail
+  },
+  {
+    path: '/category',
+    name: 'Category',
+    include: true,
+    component: Category
   }
 ]
 

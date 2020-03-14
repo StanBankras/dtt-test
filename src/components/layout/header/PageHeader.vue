@@ -39,6 +39,9 @@ ul {
       transition: background-color .2s;
       display: flex;
       align-items: center;
+      &.router-link-exact-active { 
+        background-color: $secondary-color;
+      }
       &:hover {
         background-color: $secondary-color;
       }

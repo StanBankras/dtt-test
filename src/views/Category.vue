@@ -1,0 +1,178 @@
+<template>
+  <div id="category">
+    <title-element size="h1">Find games by category</title-element>
+    <nav class="categories">
+      <a 
+        @click="changeCategory(category)" 
+        class="category" 
+        v-for="(category, index) in categories" :key="index"
+        :class="selectedGenre === category ? 'active' : ''"
+      >{{ category }}</a>
+    </nav>
+    
+    <section id="game-list">
+      <article class="list-item" v-for="game in activeGames.slice(0,10)" :key="game.id">
+        <div class="img-wrapper">
+          <img :src="game.background_image" alt="">
+        </div>
+        <h2><router-link :to="'/detail/' + game.id">{{ game.name }}</router-link></h2>
+        <p>{{ game.description }}</p>
+        <div class="genres">
+          <tag color="grey" v-for="genre in game.genres" :key="genre.id">{{ genre.name }}</tag>
+        </div>
+      </article>
+    </section>
+  </div>
+</template>
+
+<script lang="ts">
+import Vue from 'vue';
+import { Game } from '../models/Game';
+
+export default Vue.extend({
+  data() {
+    return {
+      games: [] as Game[],
+      genres: {} as Record<string, number>,
+      categories: [] as string[],
+      selectedGenre: ''
+    }
+  },
+  methods: {
+    changeCategory(category) {
+      this.selectedGenre = category;
+    },
+    getDescriptions() {
+      for (let i = 0; i < this.activeGames.length; i++) {
+        this.$axios.get('https://api.rawg.io/api/games/' + this.activeGames[i].id)
+        .then((response) => {
+          this.activeGames[i].description = response.data.description_raw;
+        })
+      }
+    },
+    requestGames(page = 1) {
+      this.$axios.get('https://api.rawg.io/api/games?page=' + page)
+      .then(response => {
+        response.data.results.forEach(element => {
+          element.description = '';
+          this.games.push(element);
+          element.genres.forEach(genre => {
+            this.genres[genre.name] = (this.genres[genre.name] || 0) + 1
+          })
+        });
+
+        const values: number[] = Object.values(this.genres);
+        const filledCategoryAmount = values.filter(value => value >= 10).length;
+        
+        if(filledCategoryAmount < 5) {
+          this.requestGames(page+1);
+        } else {
+          let sortedCategories: string[] = Object.keys(this.genres).sort((a,b) => this.genres[b]-this.genres[a]);
+          sortedCategories = sortedCategories.slice(0,5);
+          this.categories = sortedCategories;
+          this.games = this.games.filter(game => {
+            let found = false;
+            game.genres.forEach(genre => {
+              if (sortedCategories.includes(genre.name)) {
+                found = true;
+              }
+            });
+            return found;
+          });
+          this.selectedGenre = sortedCategories[0];
+        }
+        this.getDescriptions();
+      })
+    }
+  },
+  computed: {
+    activeGames(): Game[] {
+      return this.games.filter(game => {
+        let found = false;
+        game.genres.forEach(genre => {
+          if (genre.name == this.selectedGenre) {
+            found = true;
+          }
+        });
+        return found;
+      });
+    }
+  },
+  mounted() {
+    this.requestGames();
+  }
+})
+</script>
+
+<style lang="scss" scoped>
+.categories {
+  padding: 0.75rem 1rem;
+  background-color: #ECECEC;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  .category {
+    padding: 0.5rem 1.6rem;
+    border-radius: 25px;
+    background-color: #0099FF;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: .2s;
+    user-select: none;
+    &:hover, &.active {
+      background-color: #006CB4;
+    }
+    &:active {
+      transform: scale(1.1);
+    }
+  }
+}
+
+#game-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 2rem;
+  .list-item {
+    .img-wrapper {
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      position: relative;
+      img {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 110%;
+      }
+    }
+    h2 {
+      min-height: 30px;
+      margin-bottom: 10px;
+      a {
+        color: #484848;
+        text-decoration: none;
+        &:hover {
+          text-decoration: underline;
+        } 
+      }
+    }
+    p { 
+      font-size: 14px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      line-height: 1.1rem;
+    }
+    .genres {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+    }
+  }
+}
+</style>
