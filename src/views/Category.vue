@@ -131,7 +131,10 @@ export default Vue.extend({
   margin-bottom: 2rem;
   position: sticky;
   top: 83px;
-  z-index: 1000;
+  z-index: 999;
+  @media(max-width: 500px) {
+    position: relative;
+  }
   .category {
     padding: 0.5rem 1.6rem;
     border-radius: 25px;

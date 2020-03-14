@@ -91,7 +91,10 @@ export default Vue.extend({
   margin-bottom: 2rem;
   position: sticky;
   top: 83px;
-  z-index: 1000;
+  z-index: 999;
+  @media(max-width: 500px) {
+    position: relative;
+  }
   p {
     margin-right: 1rem;
     font-size: 13px;
