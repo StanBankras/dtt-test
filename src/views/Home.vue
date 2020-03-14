@@ -1,8 +1,13 @@
 <template>
   <div class="home">
     <title-element size="h1">Find your favorite games</title-element>
-    <section id="game-list" v-if="games[0].name != ''">
-      <article class="list-item" v-for="game in games.slice(0, 10)" :key="game.id">
+    <nav class="sorting">
+      <p>Sorting</p>
+      <a @click="sorting = 'alphabetical'" :class="sorting == 'alphabetical' ? 'active' : ''">Alphabetical</a>
+      <a @click="sorting = 'rating'" :class="sorting == 'rating' ? 'active' : ''">Rating high to low</a>
+    </nav>
+    <section id="game-list" v-if="games.length != 0">
+      <article class="list-item" v-for="game in gamesSorted.slice(0, 10)" :key="game.id">
         <div class="img-wrapper">
           <img :src="game.background_image" alt="">
         </div>
@@ -19,14 +24,25 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Game } from '../models/Game';
+
 export default Vue.extend({
   data() {
     return {
-      games: [
-        {
-          name: ''
-        }
-      ]
+      sorting: '',
+      games: [] as Game[]
+    }
+  },
+  computed: {
+    gamesSorted(): Game[] {
+      const sortedGames: Game[] = this.games.slice();
+      if (this.sorting == 'alphabetical') {
+        sortedGames.sort((a, b) => a.name.localeCompare(b.name));
+      }
+      if (this.sorting == 'rating') {
+        sortedGames.sort((a, b) => b.rating > a.rating ? +1 : -1);
+      }
+      return sortedGames;
     }
   },
   created() {
@@ -51,6 +67,9 @@ export default Vue.extend({
       })
       .then(() => {
         this.games = gameArray;
+        this.games.forEach(item => {
+          console.log(item);
+        })
         this.$store.state.loadedGames = gameArray;
       })
       .catch((err) => {
@@ -62,6 +81,43 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+.sorting {
+  padding: 0.75rem 1rem 0.25rem 1rem;
+  background-color: #ECECEC;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  position: sticky;
+  top: 83px;
+  z-index: 1000;
+  p {
+    margin-right: 1rem;
+    font-size: 13px;
+  }
+  a {
+    display: block;
+    padding: 0.2rem 1.2rem;
+    border-radius: 25px;
+    background-color: #0099FF;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: .2s;
+    user-select: none;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+    &:hover, &.active {
+      background-color: #006CB4;
+    }
+    &:active {
+      transform: scale(1.1);
+    }
+  }
+}
+
 #game-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
