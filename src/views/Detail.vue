@@ -13,9 +13,9 @@
       <div class="wrapper">
         <article id="details">
           <div class="img-wrapper" v-if="game.background_image">
-            <img :src="game.background_image" alt="">
+            <img :src="game.background_image" :alt="game.name">
             <div class="stars">
-              <img src="@/assets/img/icons/star.svg" alt="" v-for="index in getStars" :key="index">
+              <img src="@/assets/img/icons/star.svg" alt="Star" v-for="index in getStars" :key="index">
             </div>
           </div>
 
@@ -59,7 +59,7 @@
         <div id="sidebar" v-if="similarGames != []">
           <title-element size="h2">Similar games</title-element>
           <section v-for="similarGame in similarGames" :key="similarGame.id">
-            <img :src="similarGame.background_image" alt="">
+            <img :src="similarGame.background_image"  :alt="similarGame.name">
             <a @click="selectOtherGame(similarGame.id)" :to="'../detail/' + similarGame.id">{{ similarGame.name }}</a>
           </section>
         </div>
@@ -75,6 +75,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Game } from '../models/Game';
+
 export default Vue.extend({
   data() {
     return {
@@ -123,11 +124,14 @@ export default Vue.extend({
     getGameSeries(gameId: number) {
       const pageId = gameId ? gameId : this.$route.params.id;
       this.similarGames = [];
+
       this.$axios.get('https://api.rawg.io/api/games/' + pageId + '/game-series')
       .then((response) => {
+        // If the game-series request provides the game that's already shown, filter it out of the list
         const similarGamesArray: Game[] = response.data.results.filter(item => item.id != pageId);
-      
-        for (let i=0;i<Math.min(1, similarGamesArray.length);i++) {
+        
+        // Push a maximum of 2 games that are in the same series
+        for (let i=0;i<Math.min(2, similarGamesArray.length);i++) {
           this.similarGames.push(similarGamesArray[i]);
         }
         this.getSimilarGames(gameId);
@@ -137,6 +141,7 @@ export default Vue.extend({
       })
     },
     getSimilarGames(gameId: number) {
+      // Check how many games can still be added
       const spaceLeft = 3-this.similarGames.length;
 
       this.$axios.get('https://api.rawg.io/api/games/' + gameId + '/suggested')
@@ -147,7 +152,7 @@ export default Vue.extend({
             response.data.results.splice(item);
           }
         })
-        // Push the
+        // Push similargames, however many spaceLeft is
         for (let i=0;i<Math.min(spaceLeft, response.data.results.length);i++) {
           this.similarGames.push(response.data.results[i]);
         }
@@ -163,8 +168,8 @@ export default Vue.extend({
     }
   },
   created() {
-    // Get game details by pageId
     if (this.$route.path.split('/')[1] === 'random') {
+      // Path is random, so obtain a random game
       this.$axios.get('https://api.rawg.io/api/games')
       .then((response) => {
         const pageId = Math.floor(Math.random() * Math.floor(response.data.count));
@@ -173,11 +178,12 @@ export default Vue.extend({
         .then((response) => {
           this.game = response.data;
         })
-        .catch((err) => {
-          console.error(err);
+        .catch(() => {
+          this.randomGame();
         })
       })
     } else {
+      // Path is of /detail, so get game by id
       const pageId = this.$route.params.id;
       this.getGameSeries(parseInt(pageId));
       this.$axios.get('https://api.rawg.io/api/games/' + pageId)
