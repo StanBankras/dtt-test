@@ -20,12 +20,6 @@ const routes = [
     component: Detail
   },
   {
-    path: '/random/:id',
-    name: 'Random',
-    include: false,
-    component: Detail
-  },
-  {
     path: '/random',
     name: 'Random',
     include: true,

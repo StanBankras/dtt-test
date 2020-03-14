@@ -64,8 +64,14 @@ export default Vue.extend({
 <style lang="scss" scoped>
 #game-list {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   grid-gap: 2rem;
+  @media(max-width: 1000px) {
+    grid-template-columns: 1fr 1fr;
+  }
+  @media(max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
   .list-item {
     .img-wrapper {
       width: 100%;
@@ -74,10 +80,10 @@ export default Vue.extend({
       position: relative;
       img {
         position: absolute;
-        left: 50%;
+        left: 0;
         top: 50%;
-        transform: translate(-50%, -50%);
-        width: 110%;
+        transform: translate(0, -50%);
+        height: 100%;
       }
     }
     h2 {
@@ -98,6 +104,9 @@ export default Vue.extend({
       -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       line-height: 1.1rem;
+      @media(max-width: 767px) {
+        max-width: 400px;
+      }
     }
     .genres {
       margin-top: 1rem;

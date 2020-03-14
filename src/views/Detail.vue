@@ -41,7 +41,9 @@
             </section>
             <section>
               <title-element size="h2">Published by</title-element>
-              <b v-for="publisher in game.publishers" :key="publisher.id">{{ publisher.name == game.publishers[game.publishers.length-1].name ? publisher.name : publisher.name + ',' }} </b>
+              <b v-for="publisher in game.publishers" :key="publisher.id">
+                {{ publisher.name == game.publishers[game.publishers.length-1].name ? publisher.name : publisher.name + ',' }} 
+              </b>
             </section>
           </div>
 
@@ -196,6 +198,9 @@ export default Vue.extend({
     display: grid;
     grid-template-columns: 1fr 200px;
     grid-gap: 2rem;
+    @media(max-width: 767px) {
+      grid-template-columns: 1fr;
+    }
   }
   .genres {
     margin-top: 1rem;
@@ -227,7 +232,7 @@ export default Vue.extend({
     font-weight: bold;
     span {
       font-weight: normal;
-      margin-left: 1rem;
+      margin-right: 1rem;
       font-size: 14px;
     }
   }
@@ -244,6 +249,15 @@ export default Vue.extend({
     ul {
       padding-left: 20px;
       list-style-type:square;
+    }
+    .title { 
+      margin-top: 1rem;
+    }
+    @media(max-width: 1000px) {
+      grid-template-columns: 1fr 1fr;
+    }
+    @media(max-width: 767px) {
+      grid-template-columns: 1fr;
     }
   }
   .tags {

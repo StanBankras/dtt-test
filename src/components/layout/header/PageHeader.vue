@@ -21,13 +21,19 @@
 
 #header {
   background-color: $accent-color;
-  padding: 1.5rem 0;
+  padding: 1.5rem 0 0.5rem 0;
 }
 ul {
   display: flex;
   list-style: none;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  @media(max-width: 767px) {
+    justify-content: flex-start;
+  }
   li {
+    margin-right: 1rem;
+    margin-bottom: 1rem;
     a {
       padding: 0.5rem 1.5rem;
       background-color: $primary-color;
@@ -53,6 +59,9 @@ ul {
     &.split {
       margin-left: auto;
       margin-right: 1rem;
+      @media(max-width: 767px) {
+        margin-left: 0;
+      }
     }
   }
 }

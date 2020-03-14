@@ -16,6 +16,7 @@ export default Vue.extend({
 .footer-section {
   margin-right: 4rem;
   max-width: 300px;
+  margin-bottom: 1rem;
   h2 {
     margin-bottom: 1.5rem;
   }

@@ -1,27 +1,32 @@
 <template>
   <div id="category">
     <title-element size="h1">Find games by category</title-element>
-    <nav class="categories">
-      <a 
-        @click="changeCategory(category)" 
-        class="category" 
-        v-for="(category, index) in categories" :key="index"
-        :class="selectedGenre === category ? 'active' : ''"
-      >{{ category }}</a>
-    </nav>
-    
-    <section id="game-list">
-      <article class="list-item" v-for="game in activeGames.slice(0,10)" :key="game.id">
-        <div class="img-wrapper">
-          <img :src="game.background_image" alt="">
-        </div>
-        <h2><router-link :to="'/detail/' + game.id">{{ game.name }}</router-link></h2>
-        <p>{{ game.description }}</p>
-        <div class="genres">
-          <tag color="grey" v-for="genre in game.genres" :key="genre.id">{{ genre.name }}</tag>
-        </div>
-      </article>
-    </section>
+    <div v-if="selectedGenre != ''">
+      <nav class="categories">
+        <a 
+          @click="changeCategory(category)" 
+          class="category" 
+          v-for="(category, index) in categories" :key="index"
+          :class="selectedGenre === category ? 'active' : ''"
+        >{{ category }}</a>
+      </nav>
+      
+      <section id="game-list">
+        <article class="list-item" v-for="game in activeGames.slice(0,10)" :key="game.id">
+          <div class="img-wrapper">
+            <img :src="game.background_image" alt="">
+          </div>
+          <h2><router-link :to="'/detail/' + game.id">{{ game.name }}</router-link></h2>
+          <p>{{ game.description ? game.description : 'No description found ;(' }}</p>
+          <div class="genres">
+            <tag color="grey" v-for="genre in game.genres" :key="genre.id">{{ genre.name }}</tag>
+          </div>
+        </article>
+      </section>
+    </div>
+    <div v-else>
+      Loading categories...
+    </div>
   </div>
 </template>
 
@@ -106,11 +111,11 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .categories {
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1rem 0.25rem 1rem;
   background-color: #ECECEC;
   margin-top: 1rem;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   margin-bottom: 2rem;
   .category {
     padding: 0.5rem 1.6rem;
@@ -122,6 +127,8 @@ export default Vue.extend({
     cursor: pointer;
     transition: .2s;
     user-select: none;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
     &:hover, &.active {
       background-color: #006CB4;
     }
@@ -131,10 +138,17 @@ export default Vue.extend({
   }
 }
 
+
 #game-list {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   grid-gap: 2rem;
+  @media(max-width: 1000px) {
+    grid-template-columns: 1fr 1fr;
+  }
+  @media(max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
   .list-item {
     .img-wrapper {
       width: 100%;
@@ -143,10 +157,10 @@ export default Vue.extend({
       position: relative;
       img {
         position: absolute;
-        left: 50%;
+        left: 0;
         top: 50%;
-        transform: translate(-50%, -50%);
-        width: 110%;
+        transform: translate(0, -50%);
+        height: 100%;
       }
     }
     h2 {
@@ -167,6 +181,9 @@ export default Vue.extend({
       -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       line-height: 1.1rem;
+      @media(max-width: 767px) {
+        max-width: 400px;
+      }
     }
     .genres {
       margin-top: 1rem;
