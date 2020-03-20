@@ -13,18 +13,23 @@ export const store = new Vuex.Store({
   mutations: {
     ADD_GAMES(state, games) {
       if (!Array.isArray(games)) {
+        const exists = state.loadedGames.find(loadedGame => loadedGame.id === games.id);
+        if(exists) return;
         state.loadedGames.push(games)
       } else {
-        games.forEach(game => state.loadedGames.push(game));
+        games.forEach(game => {
+          console.log(game.id);
+          const exists = state.loadedGames.find(loadedGame => loadedGame.id === game.id);
+          if(exists) return;
+          state.loadedGames.push(game);
+        })
       }
     }
   },
   actions: {
-    loadGames({ commit, state }, page = 1): Promise<Game[]> {
-      if (state.loadedGames.length >= 10) return Promise.resolve(state.loadedGames);
-
+    loadGames({ commit }, page = 1): Promise<Game[]> {
       let gameArray: Game[] = [];
-      
+      console.log('Page: ', page)
       return axios.get('https://api.rawg.io/api/games?page=' + page)
         .then(response => {
           gameArray = response.data.results.splice(0,10);
@@ -53,15 +58,17 @@ export const store = new Vuex.Store({
         return response.data;
       })
     },
-    findGameById(context, id) {
-      if (context.state.loadedGames.find(x => x.id == id)) {
+    findGameById({ commit, state }, id) {
+      const loadedGame = state.loadedGames.find(x => x.id == id);
+      if (loadedGame && loadedGame.description_raw) {
         // Load game from store
-        return context.state.loadedGames.find(x => x.id == id);
+        console.log(state.loadedGames.find(x => x.id == id));
+        return state.loadedGames.find(x => x.id == id);
       } else {
         // Else load game from API & add to store
         return axios.get('https://api.rawg.io/api/games/' + id)
         .then((response) => {
-          context.commit('ADD_GAMES', response.data);
+          commit('ADD_GAMES', response.data);
           return response.data;
         })
       }

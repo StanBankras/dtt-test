@@ -7,7 +7,7 @@
       <a @click="sorting = 'rating'" :class="sorting == 'rating' ? 'active' : ''">Rating high to low</a>
     </nav>
     <section id="game-list" v-if="games.length != 0">
-      <article class="list-item" v-for="game in gamesSorted.slice(0, 10)" :key="game.id">
+      <article class="list-item" v-for="(game, index) in gamesSorted.slice(0, 10)" :key="index">
         <div class="img-wrapper">
           <img :src="game.background_image" alt="">
         </div>

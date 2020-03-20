@@ -12,7 +12,7 @@
       </nav>
       
       <section id="game-list">
-        <article class="list-item" v-for="game in activeGames.slice(0,10)" :key="game.id">
+        <article class="list-item" v-for="(game, index) in activeGames.slice(0,10)" :key="index">
           <div class="img-wrapper">
             <img :src="game.background_image" :alt="game.name">
           </div>
@@ -49,57 +49,58 @@ export default Vue.extend({
     },
     getDescriptions() {
       // Descriptions for the games need an extra API call
-      this.activeGames.forEach(activeGame => {
+      this.games.forEach(activeGame => {
         this.$store.dispatch('findGameById', activeGame.id)
-          .then(game => {
-            activeGame.description = game.description_raw;
+          .then(gameObject => {
+            activeGame.description = gameObject.description_raw;
           })
           .catch(err => console.error(err));      
       })
     },
     // Requests as many games as needed to fill 5 categories with at least 10 games per.
     requestGames(page = 1) {
-      this.$axios.get('https://api.rawg.io/api/games?page=' + page)
-      .then(response => {
-        response.data.results.forEach(element => {
-          // Add description property to each object, so Vue knows it exists
-          element.description = '';
-          this.games.push(element);
-          // Count amount of each genre in this.genres
-          element.genres.forEach(genre => {
-            this.genres[genre.name] = (this.genres[genre.name] || 0) + 1
-          })
-        });
-
-        // Create a list of categories (genres) that already have more than 10 games
-        const values: number[] = Object.values(this.genres);
-        const filledCategoryAmount = values.filter(value => value >= 10).length;
-        
-        if(filledCategoryAmount < 5) {
-          // If there are less than 5 categories ready, run the function again
-          this.requestGames(page+1);
-        } else {
-          // There are 5 or more categories with more than 10 games: ready for display
-
-          // Sort biggest categories to the front & slice the first 5
-          let sortedCategories: string[] = Object.keys(this.genres).sort((a,b) => this.genres[b]-this.genres[a]);
-          sortedCategories = sortedCategories.slice(0,5);
-          this.categories = sortedCategories;
-
-          // For each game in the list, check if they include the selected category (genre)
-          this.games = this.games.filter(game => {
-            let found = false;
+      this.$store.dispatch('loadGames', page)
+        .then(games => {
+          games.forEach(game => {
+            // Add description property to each object, so Vue knows it exists
+            game.description = '';
+            this.games.push(game);
+            // Count amount of each genre in this.genres
             game.genres.forEach(genre => {
-              if (sortedCategories.includes(genre.name)) {
-                found = true;
-              }
+              this.genres[genre.name] = (this.genres[genre.name] || 0) + 1
+            })
+          })
+
+          // Create a list of categories (genres) that already have more than 10 games
+          const values: number[] = Object.values(this.genres);
+          const filledCategoryAmount = values.filter(value => value >= 10).length;
+
+          if(filledCategoryAmount < 5) {
+            // If there are less than 5 categories ready, run the function again
+            this.requestGames(page+1);
+          } else {
+            // There are 5 or more categories with more than 10 games: ready for display
+
+            // Sort biggest categories to the front & slice the first 5
+            let sortedCategories: string[] = Object.keys(this.genres).sort((a,b) => this.genres[b]-this.genres[a]);
+            sortedCategories = sortedCategories.slice(0,5);
+            this.categories = sortedCategories;
+
+            // For each game in the list, check if they include the selected category (genre)
+            this.games = this.games.filter(game => {
+              let found = false;
+              game.genres.forEach(genre => {
+                if (sortedCategories.includes(genre.name)) {
+                  found = true;
+                }
+              });
+              return found;
             });
-            return found;
-          });
-          this.selectedGenre = sortedCategories[0];
-        }
-        this.getDescriptions();
-      })
+            this.selectedGenre = sortedCategories[0];
+          }
+        })
+        .then(() => this.getDescriptions())
+        .catch(err => console.error(err));
     }
   },
   computed: {
