@@ -95,54 +95,32 @@ export default Vue.extend({
     getGameSeries(gameId: number) {
       this.$store.dispatch('findGamesInSameSeries', gameId)
         .then(games => {
-          games.forEach(game => {
-            this.similarGames.push(game);
-          });
-          this.getSimilarGames(gameId);
+          this.similarGames = games;
+          this.getVisuallySimilarGames(gameId, this.similarGames);
         })
         .catch(err => console.error(err));      
     },
-    getSimilarGames(gameId: number) {
-      // Check how many games can still be added
-      const spaceLeft = 3-this.similarGames.length;
-
-      this.$axios.get('https://api.rawg.io/api/games/' + gameId + '/suggested')
-      .then((response) => {
-        // If the suggested games contain the game that's also already in the series, remove it.
-        response.data.results.forEach(item => {
-          if (this.similarGames.find((x) => x.id === item.id)) {
-            response.data.results.splice(item);
+    getVisuallySimilarGames(gameId: number, similarGames) {
+      const spaceLeft = 3 - this.similarGames.length;
+      this.$store.dispatch('findVisuallySimilarGames', gameId, similarGames)
+        .then(visuallySimilarGames => {
+          this.similarGames.forEach(similarGame => {
+            visuallySimilarGames.filter(game => game.id != similarGame.id);
+          });
+          for (let i=0;i<spaceLeft;i++) {
+            this.similarGames.push(visuallySimilarGames[i]);
           }
         })
-        // Push similargames, however many spaceLeft is
-        for (let i=0;i<Math.min(spaceLeft, response.data.results.length);i++) {
-          this.similarGames.push(response.data.results[i]);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-      })
+        .catch(err => console.error(err));      
     },
     selectOtherGame(gameId: number) {
-      // Get game details by pageId
-      this.similarGames = [];
-      this.getGameSeries(gameId);
-      this.$router.push('/detail/' + gameId);
-
-      if (this.$store.state.loadedGames.find(x => x.id == gameId)) {
-        // Load game from store
-        this.game = this.$store.state.loadedGames.find(x => x.id == gameId);
-      } else {
-        // Else load game from API & add to store
-        this.$axios.get('https://api.rawg.io/api/games/' + gameId)
-        .then((response) => {
-          this.game = response.data;
-          this.$store.state.loadedGames.push(response.data);
+      this.$store.dispatch('findGameById', gameId)
+        .then(game => {
+          this.game = game;
+          this.getGameSeries(gameId);
+          this.$router.push('/detail/' + gameId);    
         })
-        .catch((err) => {
-          console.error(err);
-        })
-      }
+        .catch(err => console.error(err));        
     }
   },
   computed: {
@@ -150,20 +128,19 @@ export default Vue.extend({
       return Math.round(this.game.rating);
     }
   },
-  created() {
+  mounted() {
     if (this.$route.path.split('/')[1] === 'random') {
       this.findRandomGame();
     } else {
       // Path is of /detail, so get game by id
       const pageId = this.$route.params.id;
-      this.getGameSeries(parseInt(pageId));
-      this.$axios.get('https://api.rawg.io/api/games/' + pageId)
-      .then((response) => {
-        this.game = response.data;
-      })
-      .catch((err) => {
-        console.error(err);
-      })
+      this.$store.dispatch('findGameById', pageId)
+        .then(game => {
+          this.game = game;
+          this.getGameSeries(parseInt(pageId));
+          this.$router.push('/detail/' + pageId);    
+        })
+        .catch(err => console.error(err));       
     }
   }
 })

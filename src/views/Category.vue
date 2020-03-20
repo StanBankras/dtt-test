@@ -50,10 +50,11 @@ export default Vue.extend({
     getDescriptions() {
       // Descriptions for the games need an extra API call
       this.activeGames.forEach(activeGame => {
-        this.$axios.get('https://api.rawg.io/api/games/' + activeGame.id)
-        .then((response) => {
-          activeGame.description = response.data.description_raw;
-        })
+        this.$store.dispatch('findGameById', activeGame.id)
+          .then(game => {
+            activeGame.description = game.description_raw;
+          })
+          .catch(err => console.error(err));      
       })
     },
     // Requests as many games as needed to fill 5 categories with at least 10 games per.

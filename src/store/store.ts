@@ -12,7 +12,11 @@ export const store = new Vuex.Store({
   },
   mutations: {
     ADD_GAMES(state, games) {
-      games.forEach(game => state.loadedGames.push(game));
+      if (!Array.isArray(games)) {
+        state.loadedGames.push(games)
+      } else {
+        games.forEach(game => state.loadedGames.push(game));
+      }
     }
   },
   actions: {
@@ -49,6 +53,19 @@ export const store = new Vuex.Store({
         return response.data;
       })
     },
+    findGameById(context, id) {
+      if (context.state.loadedGames.find(x => x.id == id)) {
+        // Load game from store
+        return context.state.loadedGames.find(x => x.id == id);
+      } else {
+        // Else load game from API & add to store
+        return axios.get('https://api.rawg.io/api/games/' + id)
+        .then((response) => {
+          context.commit('ADD_GAMES', response.data);
+          return response.data;
+        })
+      }
+    },
     findGamesInSameSeries(context, id) {
       const similarGames: Game[] = [];
       return axios.get('https://api.rawg.io/api/games/' + id + '/game-series')
@@ -62,6 +79,17 @@ export const store = new Vuex.Store({
         }
         return similarGames;
       })
+    },
+    findVisuallySimilarGames(context, id): Promise<Game[]> {
+      // Check how many games can still be added
+      const similarGamesArray: Game[] = [];
+      return axios.get('https://api.rawg.io/api/games/' + id + '/suggested')
+        .then((response) => {
+          response.data.results.forEach(item => {
+            similarGamesArray.push(item);
+          })
+          return similarGamesArray;
+        })
     }
   }
 })
