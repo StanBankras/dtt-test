@@ -29,8 +29,7 @@ import { Game } from '../models/Game';
 export default Vue.extend({
   data() {
     return {
-      sorting: '',
-      games: [] as Game[]
+      sorting: ''
     }
   },
   computed: {
@@ -43,15 +42,15 @@ export default Vue.extend({
         sortedGames.sort((a, b) => b.rating > a.rating ? +1 : -1);
       }
       return sortedGames;
+    },
+    games(): Game[] {
+      return this.$store.state.loadedGames;
     }
   },
   created() {
-    if (this.$store.state.loadedGames.length >= 10) {
-      this.games = this.$store.state.loadedGames;
-    } else {
-      this.$store.dispatch('loadGames');
-      this.games = this.$store.state.loadedGames;
-    }
+    if (this.$store.state.loadedGames.length >= 10) return;
+    this.$store.dispatch('loadGames')
+      .catch(err => console.error(err));
   }
 })
 </script>

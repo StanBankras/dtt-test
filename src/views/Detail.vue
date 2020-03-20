@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="this.$route.path.split('/')[1] === 'random'">
-      <a id="random-game" @click="randomGame()">Give me a new random game!</a>
+      <a id="random-game" @click="findRandomGame()">Give me a new random game!</a>
     </div>
     <div id="detail-item">
       <div class="genres">
@@ -84,21 +84,10 @@ export default Vue.extend({
     } 
   },
   methods: {
-    randomGame() {
-      // Get game details by pageId
-        this.$axios.get('https://api.rawg.io/api/games')
-        .then((response) => {
-          const pageId = Math.floor(Math.random() * Math.floor(response.data.count));
-          this.getGameSeries(pageId);
-          this.$axios.get('https://api.rawg.io/api/games/' + pageId)
-          .then((response) => {
-            this.game = response.data;
-          })
-          .catch(() => {
-            console.error('Game not found, looking for a new random game');
-            this.randomGame();
-          })
-        })
+    findRandomGame() {
+      this.$store.dispatch('findRandomGame')
+        .then(game => this.game = game)
+        .catch(err => console.error(err));
     },
     selectOtherGame(gameId: number) {
       // Get game details by pageId
@@ -169,7 +158,7 @@ export default Vue.extend({
   },
   created() {
     if (this.$route.path.split('/')[1] === 'random') {
-      this.randomGame();
+      this.findRandomGame();
     } else {
       // Path is of /detail, so get game by id
       const pageId = this.$route.params.id;

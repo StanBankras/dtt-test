@@ -11,18 +11,17 @@ export const store = new Vuex.Store({
     loadedGames: [] as Game[]
   },
   mutations: {
-    addGames(state, games) {
+    ADD_GAMES(state, games) {
       games.forEach(game => state.loadedGames.push(game));
     }
   },
   actions: {
-    loadGames(context, page = 1) {
-      if (context.state.loadedGames.length >= 10) return;
+    loadGames({ commit, state }, page = 1): Promise<Game[]> {
+      if (state.loadedGames.length >= 10) return Promise.resolve(state.loadedGames);
 
       let gameArray: Game[] = [];
       
-      axios
-        .get('https://api.rawg.io/api/games?page=' + page)
+      return axios.get('https://api.rawg.io/api/games?page=' + page)
         .then(response => {
           gameArray = response.data.results.splice(0,10);
           const promises: Promise<void>[] = [];
@@ -36,9 +35,19 @@ export const store = new Vuex.Store({
           return Promise.all(promises);
         })
         .then(() => {
-          context.commit('addGames', gameArray);
-        })
-        .catch(err => console.log(err));
+          commit('ADD_GAMES', gameArray);
+          return gameArray;
+        });
+    },
+    findRandomGame(): Promise<Game> {
+      return axios.get('https://api.rawg.io/api/games')
+      .then((response) => {
+        const id = Math.floor(Math.random() * Math.floor(response.data.count));
+        return axios.get('https://api.rawg.io/api/games/' + id)
+      })
+      .then((response) => {
+        return response.data;
+      })
     }
   },
   getters: {
