@@ -55,21 +55,17 @@ export default Vue.extend({
       .then((response) => { 
         gameArray = response.data.results.splice(0,10);
         const promises: Promise<void>[] = [];
-
-        for (let i = 0; i < gameArray.length; i++) {
-          promises.push(this.$axios.get('https://api.rawg.io/api/games/' + gameArray[i].id)
+        gameArray.forEach(game => {
+          promises.push(this.$axios.get('https://api.rawg.io/api/games/' + game.id)
             .then((response) => {
-              gameArray[i].description = response.data.description_raw;
+              game.description = response.data.description_raw;
             })
           )
-        }
+        });
         return Promise.all(promises);
       })
       .then(() => {
         this.games = gameArray;
-        this.games.forEach(item => {
-          console.log(item);
-        })
         this.$store.state.loadedGames = gameArray;
       })
       .catch((err) => {

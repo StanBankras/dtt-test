@@ -1,22 +1,14 @@
 import Vue from 'vue';
-import Vuex from 'vuex'
 import App from './App.vue';
 import router from './router';
 import axios, {AxiosStatic} from 'axios';
+import { store } from './store/store'
 
 // Global components
 import Title from '@/components/Title.vue';
 import Tag from '@/components/Tag.vue';
 Vue.component('title-element', Title);
 Vue.component('tag', Tag);
-
-Vue.use(Vuex);
-
-const store = new Vuex.Store({
-  state: {
-    loadedGames: []
-  }
-})
 
 Vue.config.productionTip = false;
 Vue.prototype.$axios = axios;
