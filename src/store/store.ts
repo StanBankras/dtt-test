@@ -48,9 +48,20 @@ export const store = new Vuex.Store({
       .then((response) => {
         return response.data;
       })
+    },
+    findGamesInSameSeries(context, id) {
+      const similarGames: Game[] = [];
+      return axios.get('https://api.rawg.io/api/games/' + id + '/game-series')
+      .then((response) => {
+        // If the game-series request provides the game that's already shown, filter it out of the list
+        const similarGamesArray: Game[] = response.data.results.filter(item => item.id != id);
+        
+        // Push a maximum of 2 games that are in the same series
+        for (let i=0;i<Math.min(2, similarGamesArray.length);i++) {
+          similarGames.push(similarGamesArray[i]);
+        }
+        return similarGames;
+      })
     }
-  },
-  getters: {
-
   }
 })

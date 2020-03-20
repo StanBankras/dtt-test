@@ -86,48 +86,21 @@ export default Vue.extend({
   methods: {
     findRandomGame() {
       this.$store.dispatch('findRandomGame')
-        .then(game => this.game = game)
+        .then(game => {
+          this.game = game;
+          this.getGameSeries(game.id);
+        })
         .catch(err => console.error(err));
     },
-    selectOtherGame(gameId: number) {
-      // Get game details by pageId
-      this.similarGames = [];
-      this.getGameSeries(gameId);
-      this.$router.push('/detail/' + gameId);
-
-      if (this.$store.state.loadedGames.find(x => x.id == gameId)) {
-        // Load game from store
-        this.game = this.$store.state.loadedGames.find(x => x.id == gameId);
-      } else {
-        // Else load game from API & add to store
-        this.$axios.get('https://api.rawg.io/api/games/' + gameId)
-        .then((response) => {
-          this.game = response.data;
-          this.$store.state.loadedGames.push(response.data);
-        })
-        .catch((err) => {
-          console.error(err);
-        })
-      }
-    },
     getGameSeries(gameId: number) {
-      const pageId = gameId ? gameId : this.$route.params.id;
-      this.similarGames = [];
-
-      this.$axios.get('https://api.rawg.io/api/games/' + pageId + '/game-series')
-      .then((response) => {
-        // If the game-series request provides the game that's already shown, filter it out of the list
-        const similarGamesArray: Game[] = response.data.results.filter(item => item.id != pageId);
-        
-        // Push a maximum of 2 games that are in the same series
-        for (let i=0;i<Math.min(2, similarGamesArray.length);i++) {
-          this.similarGames.push(similarGamesArray[i]);
-        }
-        this.getSimilarGames(gameId);
-      })
-      .catch((err) => {
-        console.error(err);
-      })
+      this.$store.dispatch('findGamesInSameSeries', gameId)
+        .then(games => {
+          games.forEach(game => {
+            this.similarGames.push(game);
+          });
+          this.getSimilarGames(gameId);
+        })
+        .catch(err => console.error(err));      
     },
     getSimilarGames(gameId: number) {
       // Check how many games can still be added
@@ -149,6 +122,27 @@ export default Vue.extend({
       .catch((err) => {
         console.error(err);
       })
+    },
+    selectOtherGame(gameId: number) {
+      // Get game details by pageId
+      this.similarGames = [];
+      this.getGameSeries(gameId);
+      this.$router.push('/detail/' + gameId);
+
+      if (this.$store.state.loadedGames.find(x => x.id == gameId)) {
+        // Load game from store
+        this.game = this.$store.state.loadedGames.find(x => x.id == gameId);
+      } else {
+        // Else load game from API & add to store
+        this.$axios.get('https://api.rawg.io/api/games/' + gameId)
+        .then((response) => {
+          this.game = response.data;
+          this.$store.state.loadedGames.push(response.data);
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+      }
     }
   },
   computed: {
