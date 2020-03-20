@@ -46,31 +46,11 @@ export default Vue.extend({
     }
   },
   created() {
-    if (this.$store.state.loadedGames.length > 0) {
+    if (this.$store.state.loadedGames.length >= 10) {
       this.games = this.$store.state.loadedGames;
     } else {
-      // Get the first 10 games from the API
-      let gameArray;
-      this.$axios.get('https://api.rawg.io/api/games')
-      .then((response) => { 
-        gameArray = response.data.results.splice(0,10);
-        const promises: Promise<void>[] = [];
-        gameArray.forEach(game => {
-          promises.push(this.$axios.get('https://api.rawg.io/api/games/' + game.id)
-            .then((response) => {
-              game.description = response.data.description_raw;
-            })
-          )
-        });
-        return Promise.all(promises);
-      })
-      .then(() => {
-        this.games = gameArray;
-        this.$store.state.loadedGames = gameArray;
-      })
-      .catch((err) => {
-        console.error(err);
-      })
+      this.$store.dispatch('loadGames');
+      this.games = this.$store.state.loadedGames;
     }
   }
 })
