@@ -82,21 +82,9 @@ export default Vue.extend({
             // There are 5 or more categories with more than 10 games: ready for display
 
             // Sort biggest categories to the front & slice the first 5
-            let sortedCategories: string[] = Object.keys(this.genres).sort((a,b) => this.genres[b]-this.genres[a]);
-            sortedCategories = sortedCategories.slice(0,5);
-            this.categories = sortedCategories;
-
-            // For each game in the list, check if they include the selected category (genre)
-            this.games = this.games.filter(game => {
-              let found = false;
-              game.genres.forEach(genre => {
-                if (sortedCategories.includes(genre.name)) {
-                  found = true;
-                }
-              });
-              return found;
-            });
-            this.selectedGenre = sortedCategories[0];
+            const sortedCategories: string[] = Object.keys(this.genres).sort((a,b) => this.genres[b]-this.genres[a]);
+            this.categories = sortedCategories.slice(0,5);
+            this.selectedGenre = this.categories[0];
           }
         })
         .then(() => this.getDescriptions())

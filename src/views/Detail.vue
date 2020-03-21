@@ -58,7 +58,7 @@
 
         <div id="sidebar" v-if="similarGames != []">
           <title-element size="h2">Similar games</title-element>
-          <section v-for="similarGame in similarGames" :key="similarGame.id">
+          <section v-for="(similarGame, index) in similarGames" :key="index">
             <img :src="similarGame.background_image"  :alt="similarGame.name">
             <a @click="selectOtherGame(similarGame.id)" :to="'../detail/' + similarGame.id">{{ similarGame.name }}</a>
           </section>
@@ -90,22 +90,28 @@ export default Vue.extend({
           this.game = game;
           this.getGameSeries(game.id);
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+          this.findRandomGame();
+          console.error(err)
+        });
     },
     getGameSeries(gameId: number) {
       this.$store.dispatch('findGamesInSameSeries', gameId)
         .then(games => {
           this.similarGames = games;
-          this.getVisuallySimilarGames(gameId, this.similarGames);
+          this.getVisuallySimilarGames(gameId);
         })
         .catch(err => console.error(err));      
     },
-    getVisuallySimilarGames(gameId: number, similarGames) {
+    getVisuallySimilarGames(gameId: number) {
       const spaceLeft = 3 - this.similarGames.length;
-      this.$store.dispatch('findVisuallySimilarGames', gameId, similarGames)
+      this.$store.dispatch('findVisuallySimilarGames', gameId)
         .then(visuallySimilarGames => {
           this.similarGames.forEach(similarGame => {
-            visuallySimilarGames.filter(game => game.id != similarGame.id);
+            const exists = visuallySimilarGames.find(visuallySimilarGame => visuallySimilarGame.id === similarGame.id);
+            if(exists) {
+              visuallySimilarGames.splice(visuallySimilarGames.findIndex(x => x.id === exists.id), 1);
+            }
           });
           for (let i=0;i<spaceLeft;i++) {
             this.similarGames.push(visuallySimilarGames[i]);
@@ -118,7 +124,7 @@ export default Vue.extend({
         .then(game => {
           this.game = game;
           this.getGameSeries(gameId);
-          this.$router.push('/detail/' + gameId);    
+          this.$router.push({ path: '/detail/' + gameId });    
         })
         .catch(err => console.error(err));        
     }
@@ -138,7 +144,6 @@ export default Vue.extend({
         .then(game => {
           this.game = game;
           this.getGameSeries(parseInt(pageId));
-          this.$router.push('/detail/' + pageId);    
         })
         .catch(err => console.error(err));       
     }

@@ -18,7 +18,6 @@ export const store = new Vuex.Store({
         state.loadedGames.push(games)
       } else {
         games.forEach(game => {
-          console.log(game.id);
           const exists = state.loadedGames.find(loadedGame => loadedGame.id === game.id);
           if(exists) return;
           state.loadedGames.push(game);
@@ -29,7 +28,6 @@ export const store = new Vuex.Store({
   actions: {
     loadGames({ commit }, page = 1): Promise<Game[]> {
       let gameArray: Game[] = [];
-      console.log('Page: ', page)
       return axios.get('https://api.rawg.io/api/games?page=' + page)
         .then(response => {
           gameArray = response.data.results.splice(0,10);
@@ -62,7 +60,6 @@ export const store = new Vuex.Store({
       const loadedGame = state.loadedGames.find(x => x.id == id);
       if (loadedGame && loadedGame.description_raw) {
         // Load game from store
-        console.log(state.loadedGames.find(x => x.id == id));
         return state.loadedGames.find(x => x.id == id);
       } else {
         // Else load game from API & add to store
